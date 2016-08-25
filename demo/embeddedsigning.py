@@ -119,6 +119,11 @@ with open(input_document_path, 'rb') as pdf_file:
                 documentId=1,
                 data=pdf_file,
             ),
+            pydocusign.Document(
+                name='document_2.pdf',
+                documentId=2,
+                data=pdf_file,
+            ),
         ],
         emailSubject='This is the subject',
         emailBlurb='This is the body',
@@ -126,7 +131,7 @@ with open(input_document_path, 'rb') as pdf_file:
         status=pydocusign.Envelope.STATUS_SENT,
         recipients=signers,
     )
-    client.create_envelope_from_document(envelope)
+    client.create_envelope_from_documents(envelope)
 print("   Received envelopeId {id}".format(id=envelope.envelopeId))
 
 
@@ -155,10 +160,11 @@ print("   Received signing URL for recipient 1: {0}".format(signing_url))
 print("5. List signature documents.")
 document_list = envelope.get_document_list()
 print("   Received document list: {0}".format(document_list))
-print("6. Download document from DocuSign.")
-document = envelope.get_document(document_list[0]['documentId'])
-document_sha = hashlib.sha1(document.read()).hexdigest()
-print("   Document SHA1: {0}".format(document_sha))
+print("6. Download documents from DocuSign.")
+for signed_document in document_list:
+    document = envelope.get_document(signed_document['documentId'])
+    document_sha = hashlib.sha1(document.read()).hexdigest()
+    print("   Document SHA1: {0}".format(document_sha))
 print("7. Download signature certificate from DocuSign.")
 document = envelope.get_certificate()
 document_sha = hashlib.sha1(document.read()).hexdigest()
